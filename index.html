@@ -1,40 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WORTHHIT - Online Shopping</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WORTHHIT Seller Portal</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f6f7fb;color:#17131d}
+button,input,select,textarea{font:inherit}button{border:0;border-radius:12px;padding:12px 16px;cursor:pointer}
+.primary{background:#6d28d9;color:white}.muted{color:#666}
+header{background:#fff;border-bottom:1px solid #e5e5e5;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.logo{font-size:25px;font-weight:800}.logo span{color:#6d28d9}.head-actions{display:flex;gap:8px}
+.container{max-width:1150px;margin:auto;padding:22px}.hidden{display:none!important}
+.login{max-width:430px;margin:70px auto;background:#fff;padding:28px;border-radius:20px;box-shadow:0 10px 35px #0001}
+.form{display:grid;gap:12px}input,select,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:11px;background:#fff}textarea{min-height:100px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.nav button.active{background:#6d28d9;color:#fff}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:#fff;padding:20px;border-radius:18px;border:1px solid #e4e4e8}.value{font-size:28px;font-weight:800;margin-top:10px}
+.panel{background:#fff;border:1px solid #e4e4e8;border-radius:18px;padding:20px;margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+table{width:100%;border-collapse:collapse;min-width:850px}th,td{text-align:left;padding:12px;border-bottom:1px solid #eee;vertical-align:top}th{background:#fafafa}.table-wrap{overflow:auto}
+.badge{padding:5px 9px;border-radius:20px;background:#eee;font-size:13px}.empty{text-align:center;padding:35px;color:#777}
+.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:15px;z-index:30}.modal-box{background:#fff;border-radius:20px;padding:24px;width:min(700px,100%);max-height:92vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center}.order-id{font-weight:800;color:#6d28d9}
+.product{border:1px solid #ddd;border-radius:14px;padding:12px;display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}.product button{padding:8px 12px}
+.note{background:#f4f1ff;padding:12px;border-radius:12px;margin:10px 0}.toast{position:fixed;right:18px;bottom:18px;background:#17131d;color:white;padding:13px 17px;border-radius:12px;display:none;z-index:60}
+@media(max-width:750px){.cards{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}.container{padding:14px}.logo{font-size:21px}}
+</style>
 </head>
-
 <body>
+<div id="loginPage" class="login">
+<div class="logo">WORTH<span>HIT</span> Seller</div>
+<p class="muted">Seller portal — place and manage Amazon customer orders.</p>
+<div id="loginMsg"></div>
+<form class="form" onsubmit="sellerLogin(event)">
+<input id="loginPhone" placeholder="Seller mobile number" required>
+<input id="loginPass" type="password" placeholder="Password" required>
+<button class="primary">Seller Login</button>
+</form>
+<p class="muted">New seller?</p><button onclick="openSignup()">Create Seller Account</button>
+</div>
 
-<header class="header">
-  <div class="logo" onclick="showSection('home')">
-    <span>WORTH</span><b>HIT</b>
-  </div>
+<div id="app" class="hidden">
+<header><div class="logo">WORTH<span>HIT</span> Seller</div><div class="head-actions"><span id="sellerName"></span><button onclick="logout()">Logout</button></div></header>
+<main class="container">
+<div class="nav">
+<button id="nav-dashboard" class="active" onclick="showPage('dashboard')">📊 Dashboard</button>
+<button id="nav-new" onclick="showPage('new')">➕ New Order</button>
+<button id="nav-orders" onclick="showPage('orders')">📦 My Orders</button>
+<button id="nav-account" onclick="showPage('account')">👤 Account</button>
+</div>
 
-  <div class="search-wrap">
-    <input id="search" type="search" placeholder="Search products...">
-  </div>
+<section id="dashboard">
+<h1>Seller Dashboard</h1>
+<div class="cards">
+<div class="card"><div class="muted">Total Orders</div><div class="value" id="sOrders">0</div></div>
+<div class="card"><div class="muted">Pending</div><div class="value" id="sPending">0</div></div>
+<div class="card"><div class="muted">Delivered</div><div class="value" id="sDelivered">0</div></div>
+<div class="card"><div class="muted">Order Value</div><div class="value" id="sValue">₹0</div></div>
+</div>
+<div class="panel" style="margin-top:18px"><div class="panel-head"><h2>Recent Orders</h2><button onclick="showPage('orders')">View all</button></div><div id="recent"></div></div>
+</section>
 
-  <div class="head-actions">
-    <button onclick="showSection('home')">🏠 Home</button>
-    <button onclick="showSection('orders')">📦 Orders</button>
-    <button onclick="showSection('cart')">
-      🛒 Cart <b id="cartCount">0</b>
-    </button>
-    <button id="accountBtn" onclick="showSection('account')">
-      👤 Account
-    </button>
-  </div>
-</header>
+<section id="new" class="hidden">
+<h1>Place New Order</h1>
+<div class="panel">
+<div class="note"><b>Important:</b> Enter the exact <b>Amazon Order ID</b> received after placing the order on Amazon. WORTHHIT will not create its own order ID.</div>
+<form class="form" onsubmit="createOrder(event)">
+<h2>Amazon Order</h2>
+<input id="amazonOrderId" placeholder="Amazon Order ID (e.g. 404-1234567-1234567)" required>
 
+<h2>Customer Details</h2>
+<div class="grid2"><input id="cname" placeholder="Customer Full Name" required><input id="cphone" placeholder="Customer Mobile Number" inputmode="numeric" required></div>
+<input id="cemail" type="email" placeholder="Customer Email ID" required>
+<textarea id="caddress" placeholder="Full Address" required></textarea>
+<div class="grid3"><input id="ccity" placeholder="City" required><input id="cstate" placeholder="State" required><input id="cpincode" placeholder="Pincode" inputmode="numeric" maxlength="6" required></div>
 
-<main>
+<h2>Product</h2><div id="productList"></div>
+<div id="selectedProduct" class="note">Select a product.</div>
+<div class="grid2"><input id="qty" type="number" min="1" value="1" placeholder="Quantity" required><input id="amountPreview" readonly placeholder="Order Amount"></div>
+<div class="note"><b>Payment:</b> Online Payment Only. Cash on Delivery is disabled.</div>
+<button class="primary">Continue to Online Payment</button>
+</form></div>
+</section>
 
-  <!-- HOME -->
-  <section id="home" class="section active">
+<section id="orders" class="hidden"><div class="panel-head"><h1>My Orders</h1><button onclick="loadOrders()">Refresh</button></div><div class="panel"><div id="ordersTable"></div></div></section>
+<section id="account" class="hidden"><h1>Seller Account</h1><div class="panel" id="accountBox"></div></section>
+</main></div>
+
+<div id="modal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h2 id="modalTitle">Seller</h2><button onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const API="https://worthhit-api.onrender.com";
+let seller=JSON.parse(localStorage.getItem("worthhit_seller")||"null");
+let token=localStorage.getItem("worthhit_seller_token")||"";
+let products=[],orders=[],selected=null;
+const $=id=>document.getElementById(id);
+const money=n=>"₹"+Number(n||0).toLocaleString("en-IN");
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+async function api(path,options={}){
+ const headers={"Content-Type":"application/json",...(options.headers||{})}; if(token)headers.Authorization="Bearer "+token;
+ const r=await fetch(API+path,{...options,headers}); const d=await r.json().catch(()=>({}));
+ if(!r.ok)throw new Error(d.error||"Request failed"); return d;
+}
+function toast(x){$("toast").textContent=x;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2300)}
+function showPage(id){
+ document.querySelectorAll("main section").forEach(x=>x.classList.add("hidden"));$(id).classList.remove("hidden");
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));$("nav-"+id).classList.add("active");
+ if(id==="dashboard")renderDashboard();if(id==="new")renderProducts();if(id==="orders")loadOrders();if(id==="account")renderAccount();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+async function sellerLogin(e){e.preventDefault();try{const d=await api("/api/sellers/login",{method:"POST",body:JSON.stringify({phone:$("loginPhone").value.trim(),password:$("loginPass").value})});token=d.token;seller=d.seller;localStorage.setItem("worthhit_seller_token",token);localStorage.setItem("worthhit_seller",JSON.stringify(seller));enterApp();toast("Welcome "+seller.name)}catch(e){$("loginMsg").innerHTML='<div class="note">'+esc(e.message)+'</div>'}}
+function openSignup(){$("modalTitle").textContent="Create Seller Account";$("modalBody").innerHTML=`<form class="form" onsubmit="sellerSignup(event)"><input id="sn" placeholder="Seller Full Name" required><input id="sp" placeholder="Seller Mobile Number" required><input id="se" type="email" placeholder="Seller Email ID" required><input id="sx" type="password" placeholder="Password" required><button class="primary">Create Seller Account</button></form>`;$("modal").classList.remove("hidden")}
+async function sellerSignup(e){e.preventDefault();try{const d=await api("/api/sellers/signup",{method:"POST",body:JSON.stringify({name:$("sn").value.trim(),phone:$("sp").value.trim(),email:$("se").value.trim(),password:$("sx").value})});token=d.token;seller=d.seller;localStorage.setItem("worthhit_seller_token",token);localStorage.setItem("worthhit_seller",JSON.stringify(seller));closeModal();enterApp();toast("Seller account created")}catch(e){alert(e.message)}}
+function enterApp(){$("loginPage").classList.add("hidden");$("app").classList.remove("hidden");$("sellerName").textContent="👤 "+(seller?.name||"Seller");loadAll()}
+async function loadAll(){try{[products,orders]=await Promise.all([api("/api/products"),api("/api/seller/orders")]);renderDashboard();renderProducts();renderAccount()}catch(e){if(e.message.toLowerCase().includes("login"))logout();else toast(e.message)}}
+function renderDashboard(){const valid=orders.filter(o=>o.status!=="Cancelled");$("sOrders").textContent=orders.length;$("sPending").textContent=orders.filter(o=>!["Delivered","Cancelled"].includes(o.status)).length;$("sDelivered").textContent=orders.filter(o=>o.status==="Delivered").length;$("sValue").textContent=money(valid.reduce((a,o)=>a+Number(o.amount||0),0));$("recent").innerHTML=orders.slice(0,5).map(orderCard).join("")||'<div class="empty">No orders yet.</div>'}
+function orderCard(o){return `<div class="product"><div><div class="order-id">${esc(o.amazon_order_id)}</div><b>${esc(o.customer)}</b><br><span class="muted">${esc(o.city)}, ${esc(o.state)} · ${esc(o.pincode)}</span></div><div><b>${money(o.amount)}</b><br><span class="badge">${esc(o.status)}</span></div></div>`}
+function renderProducts(){$("productList").innerHTML=products.length?products.map(p=>`<div class="product"><div><b>${esc(p.name)}</b><br><span class="muted">${esc(p.category)} · ${money(p.price)} · Stock ${p.stock}</span></div><button type="button" class="${selected?.id===p.id?"primary":""}" onclick="selectProduct(${p.id})">Select</button></div>`).join(""):'<div class="empty">No products available.</div>';updateSelected()}
+function selectProduct(id){selected=products.find(p=>p.id===id)||null;updateSelected()}
+function updateSelected(){$("selectedProduct").innerHTML=selected?`<b>Selected:</b> ${esc(selected.name)} · ${money(selected.price)}`:"Select a product.";const q=Number($("qty")?.value||1);if($("amountPreview"))$("amountPreview").value=selected?money(selected.price*q):""}
+$("qty").addEventListener("input",updateSelected);
+
+async function createOrder(e){
+ e.preventDefault();if(!selected){toast("Please select a product");return}
+ const details={amazon_order_id:$("amazonOrderId").value.trim(),customer:$("cname").value.trim(),phone:$("cphone").value.trim(),email:$("cemail").value.trim(),address:$("caddress").value.trim(),city:$("ccity").value.trim(),state:$("cstate").value.trim(),pincode:$("cpincode").value.trim(),product_id:selected.id,quantity:Number($("qty").value)};
+ if(!details.amazon_order_id){toast("Amazon Order ID is required");return}
+ if(!/^[0-9]{10}$/.test(details.phone.replace(/\D/g,""))){toast("Enter valid customer mobile");return}
+ if(!/^[0-9]{6}$/.test(details.pincode)){toast("Enter valid 6 digit pincode");return}
+ try{const o=await api("/api/seller/orders/create",{method:"POST",body:JSON.stringify(details)});closeModal();await startPayment(o)}catch(e){toast(e.message)}
+}
+async function startPayment(o){
+ if(!window.Razorpay)await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+ const r=new Razorpay({key:o.key_id,amount:o.amount*100,currency:"INR",name:"WORTHHIT",description:"Seller customer order",order_id:o.razorpay_order_id,handler:async function(resp){try{const done=await api("/api/seller/orders/verify",{method:"POST",body:JSON.stringify({local_order_id:o.local_order_id,razorpay_payment_id:resp.razorpay_payment_id,razorpay_order_id:resp.razorpay_order_id,razorpay_signature:resp.razorpay_signature})});toast("Payment successful · "+done.amazon_order_id);resetOrderForm();await loadAll();showPage("orders")}catch(e){toast(e.message)}},prefill:{name:seller.name,contact:seller.phone,email:seller.email},theme:{color:"#6d28d9"}});r.open()
+}
+function resetOrderForm(){selected=null;["amazonOrderId","cname","cphone","cemail","caddress","ccity","cstate","cpincode"].forEach(id=>$(id).value="");$("qty").value=1;updateSelected()}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+async function loadOrders(){try{orders=await api("/api/seller/orders");renderOrders()}catch(e){toast(e.message)}}
+function renderOrders(){$("ordersTable").innerHTML=orders.length?`<div class="table-wrap"><table><thead><tr><th>Amazon Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Address</th><th>Date</th></tr></thead><tbody>${orders.map(o=>`<tr><td><b class="order-id">${esc(o.amazon_order_id)}</b></td><td>${esc(o.customer)}<br>${esc(o.phone)}<br>${esc(o.email)}</td><td>${esc(o.product_name)} × ${o.quantity}</td><td>${money(o.amount)}</td><td><span class="badge">${esc(o.status)}</span></td><td>${esc(o.address)}, ${esc(o.city)}, ${esc(o.state)} - ${esc(o.pincode)}</td><td>${esc(o.created_at)}</td></tr>`).join("")}</tbody></table></div>`:'<div class="empty">No orders yet.</div>'}
+function renderAccount(){$("accountBox").innerHTML=`<div class="grid2"><div><b>Seller Name</b><p>${esc(seller.name)}</p></div><div><b>Mobile</b><p>${esc(seller.phone)}</p></div><div><b>Email</b><p>${esc(seller.email)}</p></div><div><b>Seller ID</b><p>${esc(seller.id)}</p></div></div>`}
+async function logout(){try{if(token)await api("/api/sellers/logout",{method:"POST"})}catch(e){}token="";seller=null;localStorage.removeItem("worthhit_seller_token");localStorage.removeItem("worthhit_seller");$("app").classList.add("hidden");$("loginPage").classList.remove("hidden")}
+function closeModal(){$("modal").classList.add("hidden")}
+if(token&&seller)enterApp();
+</script>
+</body>
+</html>  <section id="home" class="section active">
 
     <div class="hero">
       <div>
