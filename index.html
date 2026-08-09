@@ -2,39 +2,107 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WORTHHIT — Shopping</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WORTHHIT - Online Shopping</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="brand">WORTH<span>HIT</span></div>
-    <div class="search-wrap"><input id="search" placeholder="Search products..."><button onclick="loadProducts()">🔎</button></div>
-    <div class="head-actions">
-      <button onclick="showSection('orders')">📦 Orders</button>
-      <button onclick="showSection('cart')">🛒 Cart <b id="cartCount">0</b></button>
-      <button id="accountBtn" onclick="showSection('account')">👤 Account</button>
-    </div>
-  </header>
 
-  <nav class="cats" id="categories"></nav>
+<header class="header">
+  <div class="logo" onclick="showSection('home')">
+    <span>WORTH</span><b>HIT</b>
+  </div>
 
-  <main>
-    <section id="home" class="section active">
-      <div class="hero">
-        <div><p class="eyebrow">WELCOME TO WORTHHIT</p><h1>Shop smart.<br>Shop <span>WORTHHIT.</span></h1><p>Quality products at prices worth hitting.</p><button class="primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</button></div>
-        <div class="hero-icon">🛍️</div>
+  <div class="search-wrap">
+    <input id="search" type="search" placeholder="Search products...">
+  </div>
+
+  <div class="head-actions">
+    <button onclick="showSection('home')">🏠 Home</button>
+    <button onclick="showSection('orders')">📦 Orders</button>
+    <button onclick="showSection('cart')">
+      🛒 Cart <b id="cartCount">0</b>
+    </button>
+    <button id="accountBtn" onclick="showSection('account')">
+      👤 Account
+    </button>
+  </div>
+</header>
+
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" class="section active">
+
+    <div class="hero">
+      <div>
+        <p class="hero-small">WELCOME TO</p>
+        <h1>WORTHHIT</h1>
+        <p>Smart products. Great prices. Delivered to your door.</p>
+        <button class="checkout" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+          Shop Now
+        </button>
       </div>
-      <div class="section-head"><h2>Featured Products</h2><button onclick="loadProducts()">Refresh</button></div>
-      <div id="products" class="grid"></div>
-    </section>
+    </div>
 
-    <section id="cart" class="section">
-      <div class="section-head"><h2>Your Cart</h2><button onclick="showSection('home')">Continue shopping</button></div>
-      <div id="cartBox"></div>
-    </section>
+    <div class="container">
 
-    <section id="orders" class="section">
+      <h2>Shop by Category</h2>
+
+      <div id="categories" class="cats">
+        <button class="active" onclick="filterCat('')">All</button>
+      </div>
+
+      <div class="section-title">
+        <h2>Featured Products</h2>
+      </div>
+
+      <div id="products" class="products">
+        <div class="empty">Loading products...</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- CART -->
+  <section id="cart" class="section">
+    <div class="container">
+
+      <div class="page-head">
+        <button onclick="showSection('home')">← Continue Shopping</button>
+        <h1>🛒 Your Cart</h1>
+      </div>
+
+      <div id="cartBox">
+        <div class="empty">Loading cart...</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ORDERS -->
+  <section id="orders" class="section">
+    <div class="container">
+
+      <div class="page-head">
+        <button onclick="showSection('home')">← Home</button>
+        <h1>📦 My Orders</h1>
+      </div>
+
+      <div id="ordersBox">
+        <div class="empty">Loading orders...</div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ACCOUNT -->
+  <section id    <section id="orders" class="section">
       <div class="section-head"><h2>My Orders</h2><button onclick="showSection('account')">Account</button></div>
       <div id="ordersBox"></div>
     </section>
