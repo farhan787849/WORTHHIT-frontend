@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WORTHHIT Admin</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="topbar"><div class="brand">WORTH<span>HIT</span> ADMIN</div><button onclick="location.href='index.html'">Store</button></header>
+<main><section class="section active"><div class="section-head"><h2>Admin Dashboard</h2><button onclick="logout()">Logout</button></div><div id="login"></div><div id="panel"></div></section></main>
+<script>
+const API="https://worthhit-api.onrender.com";let token=localStorage.getItem("worthhit_admin")||"";
+async function api(p,o={}){const r=await fetch(API+p,{headers:{"Content-Type":"application/json",Authorization:"Bearer "+token,...(o.headers||{})},...o});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Request failed");return d}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function showLogin(){document.getElementById("login").innerHTML='<div class="account-card"><h3>Admin Login</h3><form class="form" onsubmit="login(event)"><input id="u" value="admin" placeholder="Username"><input id="p" type="password" placeholder="Password"><button>Login</button></form><p>Default password: ChangeMe123!</p></div>'}
+async function login(e){e.preventDefault();try{const d=await api("/api/admin/login",{method:"POST",body:JSON.stringify({username:u.value,password:p.value})});token=d.token;localStorage.setItem("worthhit_admin",token);render()}catch(x){alert(x.message)}}
+async function render(){if(!token){showLogin();return}try{const d=await api("/api/dashboard");const ps=await api("/api/products");document.getElementById("login").innerHTML="";document.getElementById("panel").innerHTML='<div class="grid" style="grid-template-columns:repeat(4,1fr)">'+[['Products',d.products],['Orders',d.orders],['Customers',d.customers],['Sales','₹'+d.sales]].map(x=>'<div class="account-card"><small>'+x[0]+'</small><h2>'+x[1]+'</h2></div>').join("")+'</div><div class="account-card"><h3>Products</h3><div style="overflow:auto"><table style="width:100%"><tr><th>Name</th><th>Price</th><th>Stock</th><th>Category</th></tr>'+ps.map(p=>'<tr><td>'+esc(p.name)+'</td><td>₹'+p.price+'</td><td>'+p.stock+'</td><td>'+esc(p.category)+'</td></tr>').join("")+'</table></div></div>'}catch(x){token="";localStorage.removeItem("worthhit_admin");showLogin()}}
+async function logout(){try{await api("/api/admin/logout",{method:"POST"})}catch{}token="";localStorage.removeItem("worthhit_admin");render()}render();
+</script></body></html>
