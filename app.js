@@ -61,21 +61,23 @@ function renderAccount(){
  else $("accountBox").innerHTML=`<div class="form"><p>Login or create your WORTHHIT account.</p><button onclick="openLogin()">Login</button><button onclick="openSignup()">Create account</button></div>`;
 }
 async function saveAddress(){try{const c=await api(`/api/customers/${customer.id}/address`,{method:"PUT",body:JSON.stringify({address:$("address").value})});customer={...customer,...c};localStorage.setItem("worthhit_customer",JSON.stringify(customer));toast("Address saved")}catch(e){toast(e.message)}}
-function logout(){customer=null;localStorage.removeItem("worthhit_customer");loadCart();renderAccount();toast("Logged out")}
+function logout(){customer=null;localStorage.removeItem("worthhit_customer");loadCart();renderAccount();updateAccountButton();toast("Logged out")}
+function updateAccountButton(){$("accountBtn").textContent=customer?"👤 "+customer.name.split(" ")[0]:"👤 Account"}
 function openModal(html){$("modalBody").innerHTML=html;$("modal").classList.remove("hidden")}
 function closeModal(){$("modal").classList.add("hidden")}
 function openLogin(){openModal(`<h2>Login</h2><form class="form" onsubmit="login(event)"><input id="lphone" placeholder="Phone" required><input id="lpass" type="password" placeholder="Password" required><button>Login</button><p>New customer? <span class="switch" onclick="openSignup()">Create account</span></p></form>`)}
 function openSignup(){openModal(`<h2>Create account</h2><form class="form" onsubmit="signup(event)"><input id="sname" placeholder="Full name" required><input id="sphone" placeholder="Phone" required><input id="semail" type="email" placeholder="Email"><input id="spass" type="password" placeholder="Password" required><button>Create account</button><p>Already registered? <span class="switch" onclick="openLogin()">Login</span></p></form>`)}
-async function login(e){e.preventDefault();try{customer=await api("/api/auth/login",{method:"POST",body:JSON.stringify({phone:$("lphone").value,password:$("lpass").value})});localStorage.setItem("worthhit_customer",JSON.stringify(customer));closeModal();loadCart();renderAccount();toast("Welcome back!")}catch(x){toast(x.message)}}
-async function signup(e){e.preventDefault();try{customer=await api("/api/auth/signup",{method:"POST",body:JSON.stringify({name:$("sname").value,phone:$("sphone").value,email:$("semail").value,password:$("spass").value})});localStorage.setItem("worthhit_customer",JSON.stringify(customer));closeModal();loadCart();renderAccount();toast("Account created")}catch(x){toast(x.message)}}
+async function login(e){e.preventDefault();try{customer=await api("/api/auth/login",{method:"POST",body:JSON.stringify({phone:$("lphone").value,password:$("lpass").value})});localStorage.setItem("worthhit_customer",JSON.stringify(customer));closeModal();loadCart();renderAccount();updateAccountButton();toast("Welcome back!")}catch(x){toast(x.message)}}
+async function signup(e){e.preventDefault();try{customer=await api("/api/auth/signup",{method:"POST",body:JSON.stringify({name:$("sname").value,phone:$("sphone").value,email:$("semail").value,password:$("spass").value})});localStorage.setItem("worthhit_customer",JSON.stringify(customer));closeModal();loadCart();renderAccount();updateAccountButton();toast("Account created")}catch(x){toast(x.message)}}
 function openCheckout(){
  if(!customer){openLogin();return}
- openModal(`<h2>Checkout</h2><form class="form" onsubmit="checkout(event)"><textarea id="caddress" placeholder="Full delivery address" required>${escapeHtml(customer.address||"")}</textarea><select id="pm"><option value="COD">Cash on Delivery</option><option value="ONLINE">Online Payment</option></select><button>Continue</button></form>`)
+ openModal(`<h2>Checkout</h2><form class="form" onsubmit="checkout(event)"><textarea id="caddress" placeholder="Full delivery address" required>${escapeHtml(customer.address||"")}</textarea><p class="category">Payment method: <b>Online Payment (Razorpay)</b></p><button>Continue to Payment</button></form>`)
 }
-async function checkout(e){e.preventDefault();const address=$("caddress").value,pm=$("pm").value;
+async function checkout(e){e.preventDefault();const address=$("caddress").value;
  try{
-   if(pm==="COD"){const order=await api("/api/orders/checkout",{method:"POST",body:JSON.stringify({customer:customer.name,phone:customer.phone,address,payment_method:"COD"})});customer.address=address;localStorage.setItem("worthhit_customer",JSON.stringify(customer));closeModal();await loadCart();showSection("orders");toast("Order placed #"+order.id)}
-   else{const o=await api("/api/payments/create-order",{method:"POST",body:JSON.stringify({customer:customer.name,phone:customer.phone,address})});closeModal();await startRazorpay(o,address)}
+   const o=await api("/api/payments/create-order",{method:"POST",body:JSON.stringify({customer:customer.name,phone:customer.phone,address})});
+   customer.address=address;localStorage.setItem("worthhit_customer",JSON.stringify(customer));
+   closeModal();await startRazorpay(o,address);
  }catch(x){toast(x.message)}
 }
 async function startRazorpay(o,address){
@@ -93,5 +95,5 @@ async function loadOrders(){
 async function showTracking(id){try{const t=await api(`/api/orders/${id}/tracking`);openModal(`<h2>Order #${id}</h2><p><b>${t.status}</b></p>${t.steps.map(x=>`<p>${x.done?"✅":"⭕"} ${x.name}</p>`).join("")}`)}catch(e){toast(e.message)}}
 
 $("search").addEventListener("input",renderProducts);
-$("accountBtn").textContent=customer?"👤 "+customer.name.split(" ")[0]:"👤 Account";
+updateAccountButton();
 loadCategories();loadProducts();loadCart();
